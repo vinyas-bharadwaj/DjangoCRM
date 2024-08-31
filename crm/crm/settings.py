@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
     # my applications
     'webapp',
+
+    # 3rd party apps
     'crispy_forms',
 ]
 

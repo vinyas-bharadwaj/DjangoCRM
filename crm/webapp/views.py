@@ -4,6 +4,7 @@ from .forms import CreateUserForm, LoginForm, AddRecordForm, UpdateRecordForm
 from django.contrib.auth.models import auth
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 from .models import Record
 
@@ -22,6 +23,9 @@ def register(request):
 
     if form.is_valid():
       form.save()
+
+      messages.success(request, "Account created successfully")
+
       return redirect('login')
 
   context = {'form': form}
@@ -45,6 +49,8 @@ def my_login(request):
 
       if user is not None:
         auth.login(request, user)
+
+        messages.success(request, "login success")
 
         return redirect('dashboard')
   
@@ -72,6 +78,9 @@ def create_record(request):
 
     if form.is_valid():
       form.save()
+
+      messages.success(request, "Record created successfully")
+
       return redirect('dashboard')
     
   context = {'form': form}
@@ -91,11 +100,13 @@ def update_record(request, pk):
     if form.is_valid():
       form.save()
 
+      messages.success(request, "Record updated successfully")
+
       return redirect('dashboard')
     
-  context = {'form': form}
+  context = {'form': form, 'record': record}
 
-  return render(request, 'webapp/update-record', context=context)
+  return render(request, 'webapp/update-record.html', context=context)
 
 # Read/View a singular record
 @login_required(login_url='login')
@@ -107,11 +118,25 @@ def read_record(request, pk):
 
    return render(request, 'webapp/view-record.html', context=context)
 
+# Delete a singular record
+@login_required(login_url='login')
+def delete_record(request, pk):
+
+  record = Record.objects.get(id=pk)
+
+  record.delete()
+
+  messages.success(request, "Record deleted successfully")
+
+  return redirect('dashboard')
 
 
 # Logout user
+@login_required(login_url='login')
 def user_logout(request):
 
   auth.logout(request)
+
+  messages.success(request, "logout success")
 
   return redirect('login')
